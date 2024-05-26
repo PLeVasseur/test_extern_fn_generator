@@ -6,7 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+autocxx = { version = "0.26.0" }
 async-trait = "0.1.80"
 extern_fn_generator = { path ="../extern_fn_generator" }
 tokio = { version = "1.37.0", features = ["rt", "rt-multi-thread", "macros", "time"] }
 lazy_static = "1.4.0"
+cxx = { version = "1.0" }
+
+[build-dependencies]
+autocxx-build = { version = "0.26.0" }
+miette = { version = "5", features = ["fancy"] }
