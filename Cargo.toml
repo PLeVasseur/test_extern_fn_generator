@@ -12,6 +12,7 @@ extern_fn_generator = { path ="../extern_fn_generator" }
 tokio = { version = "1.37.0", features = ["rt", "rt-multi-thread", "macros", "time"] }
 lazy_static = "1.4.0"
 cxx = { version = "1.0" }
+const_format = "0.2.32"
 
 [build-dependencies]
 autocxx-build = { version = "0.26.0" }

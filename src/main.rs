@@ -3,14 +3,17 @@ use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 use async_trait::async_trait;
-use extern_fn_generator::{generate_extern_fn_simple, generate_extern_fns};
-use extern_fn_generator::{generate_struct, generate_extern_fn, generate_struct_impl};
 use lazy_static::lazy_static;
 use tokio::runtime::Runtime;
 use tokio::task;
 
 use autocxx::prelude::*;
-use cxx::{ExternType, type_id}; // use all the main autocxx functions
+use const_format::concatcp;
+use cxx::{ExternType, type_id};
+use extern_fn_generator::generate_extern_fns; // use all the main autocxx functions
+
+const NUMBER_OF_EXTERN_C_FN: u32 = 100;
+const NUMBER_OF_EXTERN_C_FN_STR: &str = concatcp!(NUMBER_OF_EXTERN_C_FN, "");
 
 include_cpp! {
     #include "registration.h"
@@ -48,34 +51,6 @@ trait UListener: Send + Sync {
     async fn on_msg(&self, param: u32);
 }
 
-#[generate_struct("a")]
-struct MyListener {}
-
-
-#[generate_struct_impl("a")]
-impl MyListener {
-    pub fn new() -> Self {
-        MyListener {}
-    }
-}
-
-#[generate_extern_fn("a")]
-#[async_trait]
-impl UListener for MyListener {
-    // how can I make it so that I am able to create an
-    // extern "C" fn out of this trait function impl?
-    // notes:
-    //  I cannot modify anything about the UListener trait
-    async fn on_msg(&self, param: u32) {
-        println!("the payload: {param}");
-    }
-}
-
-#[generate_extern_fn_simple]
-fn my_callback(param: u32) {
-    println!("Called with param: {}", param);
-}
-
 lazy_static! {
     static ref LISTENER_REGISTRY: Mutex<HashMap<usize, Arc<dyn UListener>>> = Mutex::new(HashMap::new());
 }
@@ -94,10 +69,6 @@ pub trait UTransport: Send + Sync {
         listener: Arc<dyn UListener>,
     ) -> Result<(), UStatus>;
 }
-
-// fn register_message_handler(handler: extern "C" fn(u32)) {
-//     handler(42);
-// }
 
 struct MyTransport;
 
