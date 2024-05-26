@@ -57,8 +57,10 @@ lazy_static! {
 
 static LISTENER_ID_COUNTER: AtomicU32 = AtomicU32::new(1);
 
+include!(concat!(env!("OUT_DIR"), "/generated_macro_invocation.rs"));
+
 // Generate a fixed number of extern "C" functions
-generate_extern_fns!(100);
+// generate_extern_fns!(100);
 
 struct UStatus;
 
