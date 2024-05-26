@@ -93,7 +93,6 @@ struct FooListener {
     foo: u32
 }
 
-
 impl FooListener {
     pub fn new(foo: u32) -> Self {
         FooListener {
@@ -109,19 +108,44 @@ impl UListener for FooListener {
     }
 }
 
+struct BarListener {
+    bar: u32
+}
+
+impl BarListener {
+    pub fn new(bar: u32) -> Self {
+       BarListener {
+            bar
+        }
+    }
+}
+
+#[async_trait]
+impl UListener for BarListener {
+    async fn on_msg(&self, param: u32) {
+        println!("the bar payload: {}", self.bar + param);
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let my_transport = MyTransport;
 
     println!("before 1");
-    let foo_listener: Arc<dyn UListener> = Arc::new(FooListener::new(100));
-    my_transport.register_listener(foo_listener).await;
+    let foo_listener_1: Arc<dyn UListener> = Arc::new(FooListener::new(100));
+    my_transport.register_listener(foo_listener_1).await;
     tokio::time::sleep(Duration::from_millis(100)).await;
     println!("after 1");
 
     println!("before 2");
-    let bar_listener: Arc<dyn UListener> = Arc::new(FooListener::new(200));
-    my_transport.register_listener(bar_listener).await;
+    let foo_listener_2: Arc<dyn UListener> = Arc::new(FooListener::new(200));
+    my_transport.register_listener(foo_listener_2).await;
     tokio::time::sleep(Duration::from_millis(100)).await;
     println!("after 2");
+
+    println!("before 3");
+    let bar_listener_1: Arc<dyn UListener> = Arc::new(BarListener::new(300));
+    my_transport.register_listener(bar_listener_1).await;
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    println!("after 3");
 }
